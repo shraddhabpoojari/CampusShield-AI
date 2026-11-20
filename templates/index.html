@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CampusShield AI</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #0f172a, #1e3a5f);
+            margin: 0;
+            padding: 30px 15px;
+            min-height: 100vh;
+            color: #1e293b;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 30px auto;
+            background: white;
+            padding: 35px;
+            border-radius: 18px;
+            box-shadow: 0 10px 35px #0005;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .shield {
+            font-size: 45px;
+        }
+
+        h1 {
+            color: #173b70;
+            margin-bottom: 8px;
+        }
+
+        .subtitle {
+            color: #64748b;
+            font-size: 15px;
+        }
+
+        .section-title {
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #173b70;
+        }
+
+        textarea {
+            width: 100%;
+            height: 160px;
+            padding: 15px;
+            border: 2px solid #dbe3ee;
+            border-radius: 10px;
+            font-size: 15px;
+            resize: vertical;
+            outline: none;
+        }
+
+        textarea:focus {
+            border-color: #2563eb;
+        }
+
+        button {
+            padding: 14px;
+            border: none;
+            border-radius: 9px;
+            font-size: 15px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .analyze {
+            width: 100%;
+            margin-top: 15px;
+            background: #173b70;
+            color: white;
+        }
+
+        .analyze:hover {
+            background: #2563eb;
+        }
+
+        .clear {
+            width: 100%;
+            margin-top: 10px;
+            background: #e2e8f0;
+            color: #334155;
+        }
+
+        #result {
+            display: none;
+            margin-top: 25px;
+            padding: 22px;
+            border-radius: 12px;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+        }
+
+        #riskBadge {
+            display: inline-block;
+            padding: 9px 18px;
+            border-radius: 30px;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+
+        .high {
+            background: #fee2e2;
+            color: #b91c1c;
+        }
+
+        .medium {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .low {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        #details {
+            white-space: pre-wrap;
+            line-height: 1.7;
+            color: #334155;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 25px;
+            color: #94a3b8;
+            font-size: 12px;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 22px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+
+        <div class="header">
+            <div class="shield">🛡️</div>
+            <h1>CampusShield AI</h1>
+            <p class="subtitle">
+                Your Cybersecurity Awareness Assistant
+            </p>
+        </div>
+
+        <div class="section-title">
+            Enter a suspicious message
+        </div>
+
+           <textarea id="message"
+    placeholder="Paste a suspicious message here..."></textarea>
+
+<!-- Paste the sample buttons here -->
+
+<div class="examples">
+    <p><b>Try sample messages:</b></p>
+
+    <button type="button" onclick="loadExample('internship')">
+        Fake Internship Offer
+    </button>
+
+    <button type="button" onclick="loadExample('bank')">
+        Bank Phishing Message
+    </button>
+
+    <button type="button" onclick="loadExample('normal')">
+        Normal College Message
+    </button>
+</div>
+        <button class="analyze" onclick="analyzeMessage()">
+            🔍 Analyze Message
+        </button>
+
+        <button class="clear" onclick="clearMessage()">
+            Clear
+        </button>
+
+        <div id="result">
+
+            <h3>Security Analysis Result</h3>
+
+            <div id="riskBadge"></div>
+
+            <div id="details"></div>
+
+        </div>
+
+        <div class="footer">
+            CampusShield AI | Student Cybersecurity Project
+            <br><br>
+            Rule-based preliminary analysis. Results are not a guarantee of safety.
+        </div>
+
+    </div>
+
+    <script>
+             function loadExample(type) {
+    const messageBox = document.getElementById("message");
+
+    const examples = {
+        internship: "Congratulations! You have been selected for an internship. Pay ₹1500 registration fees immediately to receive your offer letter. Contact us on WhatsApp.",
+
+        bank: "Your bank account will be blocked today. Click here to verify your account immediately and enter your OTP and password.",
+
+        normal: "Hello students, tomorrow's Python programming class will begin at 10 AM in Room 204. Please bring your laptops."
+    };
+
+    messageBox.value = examples[type];
+}
+        async function analyzeMessage() {
+
+            const message =
+                document.getElementById("message").value.trim();
+
+            const result =
+                document.getElementById("result");
+
+            const badge =
+                document.getElementById("riskBadge");
+
+            const details =
+                document.getElementById("details");
+
+            if (!message) {
+                alert("Please enter a message first.");
+                return;
+            }
+
+            result.style.display = "block";
+            badge.innerText = "ANALYZING...";
+            badge.className = "medium";
+            details.innerText = "Please wait while we analyze your message.";
+
+            try {
+
+                const response = await fetch("/chat", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        message: message
+                    })
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.error || "Analysis failed.");
+                }
+
+                const reply = data.reply || "";
+
+                const riskMatch = reply.match(/RISK LEVEL:\s*(HIGH|MEDIUM|LOW)/i);
+
+                const risk = riskMatch
+                    ? riskMatch[1].toUpperCase()
+                    : "UNCERTAIN";
+
+                badge.innerText = "RISK LEVEL: " + risk;
+                badge.className = risk.toLowerCase();
+
+                details.innerText = reply;
+
+            } catch (error) {
+
+                badge.innerText = "ERROR";
+                badge.className = "medium";
+                details.innerText = error.message;
+
+            }
+        }
+
+        function clearMessage() {
+
+            document.getElementById("message").value = "";
+            document.getElementById("result").style.display = "none";
+
+        }
+
+    </script>
+
+</body>
+</html>
